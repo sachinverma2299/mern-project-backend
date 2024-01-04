@@ -24,6 +24,7 @@ exports.getPlaceById = async (req,res,next) => {
 
 exports.getPlacesByUserId = async (req,res,next) =>{
     const userId = req.params.uid;
+    console.log('inside getplacesbyuserid');
     let userWithPlaces;
     try{
         userWithPlaces = await User.findById(userId).populate('places')
@@ -36,11 +37,13 @@ exports.getPlacesByUserId = async (req,res,next) =>{
     if(!userWithPlaces || userWithPlaces.length === 0) {
         return next(new HttpError('Could not find places for the provided user id.', 404))
     }
+    console.log('userwithplaces----------------',userWithPlaces);
     res.json({ places:userWithPlaces.places.map(place =>place.toObject({getters:true})) })
     
 }
 
 exports.createPlace = async(req,res,next) => {
+    console.log('inside create place');
     const errors = validationResult(req)
     if(!errors.isEmpty()) {
         console.log(errors)
@@ -55,6 +58,7 @@ exports.createPlace = async(req,res,next) => {
         image: 'asdf',
         creator
     })
+    console.log(createdPlace);
     let user;
     try{
         user = await User.findById(creator);
@@ -64,6 +68,7 @@ exports.createPlace = async(req,res,next) => {
         const error = new HttpError('creating place failed',500)
         return next(error);
     }
+    console.log(user);
     if(!user)
     {
         const error = new HttpError('could not find user for provided id.',404);
@@ -80,6 +85,7 @@ exports.createPlace = async(req,res,next) => {
     }
     catch(err)
     {
+        console.log(err);
         const error = new HttpError('creating place failed, please try again.',500)
         return next(error)
     }
@@ -94,7 +100,6 @@ exports.updatePlace = async (req,res,next) => {
     }
     const {title, description} = req.body;
     const placeId = req.params.pid;
-    console.log(placeId);
 
     let place;
     try {

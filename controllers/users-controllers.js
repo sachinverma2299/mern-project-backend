@@ -75,6 +75,6 @@ exports.login = async (req, res, next) => {
         const error = new HttpError('invalid credentials,could not login', 401);
         return next(error)
     }
-    res.json({message: 'logged in!'})
+    res.json({message: 'logged in!',user: existingUser.toObject({getters:true})})
 
 }
