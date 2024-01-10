@@ -1,5 +1,5 @@
 const HttpError = require('../models/http-error')
-const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
 const {validationResult} = require('express-validator')
 const Place = require('../models/place')
 const User = require('../models/user');
@@ -44,6 +44,7 @@ exports.getPlacesByUserId = async (req,res,next) =>{
 
 exports.createPlace = async(req,res,next) => {
     console.log('inside create place');
+    console.log(req.body);
     const errors = validationResult(req)
     if(!errors.isEmpty()) {
         console.log(errors)
@@ -55,7 +56,7 @@ exports.createPlace = async(req,res,next) => {
         description,
         address,
         location: coordinates,
-        image: 'asdf',
+        image: req.file.path,
         creator
     })
     console.log(createdPlace);
@@ -74,6 +75,7 @@ exports.createPlace = async(req,res,next) => {
         const error = new HttpError('could not find user for provided id.',404);
         return next(error);
     }
+
     console.log(user)
     try{
         const sess = await mongoose.startSession();
@@ -141,6 +143,8 @@ exports.deletePlace = async (req,res,next) => {
         return next(error);
     }
 
+    const imagePath = place.image;
+
     try{
 
         const sess = await mongoose.startSession();
@@ -153,7 +157,8 @@ exports.deletePlace = async (req,res,next) => {
     catch(err) {
         const error= new HttpError('place could not be removed,',500);
         return next(error);
-    } 
+    }
+    fs.unlink(imagePath, err=>{ console.log(err)})
     res.status(200).json({message:'Deleted place.'})
 
 }

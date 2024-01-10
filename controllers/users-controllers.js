@@ -26,8 +26,6 @@ exports.signup = async(req, res, next) => {
         return next(new Error('invalid input passed please check your data.', 422))
     }
     const {name, email, password} = req.body;
-
-    console.log('jiiii');
     let existingUser;
     try{
         existingUser = await User.findOne({email: email})
@@ -40,11 +38,12 @@ exports.signup = async(req, res, next) => {
         const error = new HttpError('user already exist, please login instead.', 422);
         return next(error);
     }
+    console.log(req.file);
 
     const createdUser = new User({
         name,
         email,
-        image:'asdd',
+        image: req.file.path,
         password,
         places:[]
     })
